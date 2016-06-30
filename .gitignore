@@ -1,0 +1,11 @@
+output/*
+scripts
+surprise/fortran/surprise
+tension/fortran/tension
+data/*/*.py
+data/*/*.converge
+data/*/*.corr
+data/*/*.likestats
+*.mod
+*.swp
+
