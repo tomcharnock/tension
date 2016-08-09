@@ -37,7 +37,7 @@ LSS = readshit(['Strong', 'Strong_L'], 6, [2, 3, 4, 5, 6])
 print "Number of LSS samples = ",len(LSS)
 
 bins = [[np.min(CMB[:, i])-np.max(LSS[:, i]), np.max(CMB[:, i])-np.min(LSS[:, i])] for i in xrange(5)]
-bin_num = 10
+bin_num = 20
 a, edges = np.histogramdd([[0], [0], [0], [0], [0]], bins=bin_num, range=bins)
 ranges = np.array([[edges[j][i]+(edges[j][i+1]-edges[j][i])/2 for i in xrange(bin_num)] for j in xrange(5)])
 norm = (len(CMB)*len(LSS))
@@ -75,5 +75,5 @@ for i in xrange(4):
 		
 		plt.contourf(ranges[j+1],ranges[i],np.sum(hist, axis=axes))
 		plt.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
-
+plt.savefig('plots/contours_' + str(bin_num) + '.pdf')
 plt.show()
