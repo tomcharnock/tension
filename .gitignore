@@ -8,4 +8,5 @@ data/*/*.corr
 data/*/*.likestats
 *.mod
 *.swp
+*.swo
 

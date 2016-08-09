@@ -27,7 +27,7 @@ Calculates the surprise and amount of information gained when comparing constrai
 ###Python
 *uses multivariate gaussian.*
 
-This also plots the 2D contours for each of the parameters
+This also plots the 2D contours for each of the parameters.
 ```
 python surprise/python/surprise.py
 ```
@@ -43,7 +43,16 @@ cd ../..
 ./surprise/fortran/surprise CMB/CMB Strong/Strong_L Strong_L
 ```
 
+##Difference vector
+Calculates the difference between CMB and LSS and then calculates the integral of the contour above the pdf value at the origin.
 
+###Python
+*uses chains directly.*
+
+This also plots the 2D contours for each of the parameters. Needs chains in `data/.../chains/`.
+```
+python difference_vector/difference_vector.py
+```
 
 
 

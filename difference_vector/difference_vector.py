@@ -6,6 +6,8 @@ startTime = datetime.now()
 
 import numpy as np
 import matplotlib.pyplot as plt
+import multiprocessing
+from multiprocessing import Pool
 from matplotlib.gridspec import GridSpec
 from scipy.interpolate import interpn
 from scipy.special import erfi
@@ -22,24 +24,30 @@ def readshit(chain, file_num, columns):
 					data.append([float(line[j]) for j in columns])
 	return np.array(data)
 
+def histogram(i):
+	diff = CMB-LSS[i]
+	res, edges = np.histogramdd(diff, bins=bin_num, range=bins)
+	return res
+	
 print "Reading CMB"
-CMB = readshit(['CMB', 'CMB'], 6, [2,3,4,6,7])
+CMB = readshit(['CMB', 'CMB'], 6, [2, 3, 4, 6, 7])
 print "Number of CMB samples = ",len(CMB)
 print "Reading LSS"
-LSS = readshit(['Strong', 'Strong_L'], 6, [2,3,4,5,6])
+LSS = readshit(['Strong', 'Strong_L'], 6, [2, 3, 4, 5, 6])
 print "Number of LSS samples = ",len(LSS)
 
-print "Calculating difference vector"
-diff = np.zeros([len(CMB)*len(LSS),5])
-for i in xrange(len(LSS)):
-	diff[i*len(CMB):(i+1)*len(CMB)] = CMB-LSS[i]
-
-print "Histogramming"
-bin_num = 2
-hist, edges = np.histogramdd(diff,bins=bin_num)
-
+bins = [[np.min(CMB[:, i])-np.max(LSS[:, i]), np.max(CMB[:, i])-np.min(LSS[:, i])] for i in xrange(5)]
+bin_num = 10
+a, edges = np.histogramdd([[0], [0], [0], [0], [0]], bins=bin_num, range=bins)
 ranges = np.array([[edges[j][i]+(edges[j][i+1]-edges[j][i])/2 for i in xrange(bin_num)] for j in xrange(5)])
 norm = (len(CMB)*len(LSS))
+
+hist = np.zeros([bin_num, bin_num, bin_num, bin_num, bin_num])
+
+print "Using ", multiprocessing.cpu_count(), " processors"
+pool = Pool()
+for i in pool.imap_unordered(histogram, xrange(len(LSS))):
+	hist += i
 
 print "Finding number of samples at 0"
 val = interpn(ranges, hist, [0, 0, 0, 0, 0])
@@ -47,8 +55,8 @@ print "Number of samples at 0 = ", val
 print "Tension = ", np.sqrt(2)*erfi(np.sum(hist[hist>=val])/norm)
 
 print datetime.now() - startTime, ' seconds.'
-total_mem = process.memory_info().rss >> 30
-print total_mem, 'GB'
+total_mem = process.memory_info().rss >> 20
+print total_mem, 'MB'
 
 fig = plt.figure(figsize=(7, 6))
 gs = GridSpec(4, 4)
@@ -69,4 +77,3 @@ for i in xrange(4):
 		plt.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
 
 plt.show()
-
