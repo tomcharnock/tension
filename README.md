@@ -50,8 +50,10 @@ Calculates the difference between CMB and LSS and then calculates the integral o
 *uses chains directly.*
 
 This also plots the 2D contours for each of the parameters. Needs chains in `data/.../chains/`.
+
+This example finds the difference vector of the `data/CMB/chains/CMB_*.txt` data to the `data/Strong/chains/Strong_L_*.txt` data using 10 bins in the histogram.
 ```
-python difference_vector/difference_vector.py
+python difference_vector/difference_vector.py 10 CMB CMB Strong Strong_L
 ```
 
 
