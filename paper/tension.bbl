@@ -1,0 +1,56 @@
+\def\eprinttmppp@#1arXiv:@{#1}
+\providecommand{\arxivlink[1]}{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
+\def\eprinttmp@#1arXiv:#2 [#3]#4@{\ifthenelse{\equal{#3}{x}}{\ifthenelse{
+\equal{#1}{}}{\arxivlink{\eprinttmppp@#2@}}{\arxivlink{#1}}}{\arxivlink{#2}
+  [#3]}}
+\providecommand{\eprintlink}[1]{\eprinttmp@#1arXiv: [x]@}
+\renewcommand{\eprint}[1]{\eprintlink{#1}}
+\providecommand{\adsurl}[1]{\href{#1}{ADS}}
+\renewcommand{\bibinfo}[2]{\ifthenelse{\equal{#1}{isbn}}{\href{http://cosmologist.info/ISBN/#2}{#2}}{#2}}
+\begin{thebibliography}{4}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname bibnamefont\endcsname\relax
+  \def\bibnamefont#1{#1}\fi
+\expandafter\ifx\csname bibfnamefont\endcsname\relax
+  \def\bibfnamefont#1{#1}\fi
+\expandafter\ifx\csname citenamefont\endcsname\relax
+  \def\citenamefont#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+
+\bibitem[{\citenamefont{Battye et~al.}(2015)\citenamefont{Battye, Charnock, and
+  Moss}}]{Battye:2014qga}
+\bibinfo{author}{\bibfnamefont{R.~A.} \bibnamefont{Battye}},
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Charnock}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Moss}},
+  \bibinfo{journal}{Phys. Rev.} \textbf{\bibinfo{volume}{D91}},
+  \bibinfo{pages}{103508} (\bibinfo{year}{2015}), \eprint{1409.2769}.
+
+\bibitem[{\citenamefont{Seehars et~al.}(2014)\citenamefont{Seehars, Amara,
+  Refregier, Paranjape, and Akeret}}]{Seehars:2014ora}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Seehars}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Amara}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Refregier}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Paranjape}},
+  \bibnamefont{et~al.}, \bibinfo{journal}{Phys. Rev.}
+  \textbf{\bibinfo{volume}{D90}}, \bibinfo{pages}{023533}
+  (\bibinfo{year}{2014}), \eprint{1402.3593}.
+
+\bibitem[{\citenamefont{Marshall et~al.}(2006)\citenamefont{Marshall, Rajguru,
+  and Slosar}}]{Marshall:2004zd}
+\bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Marshall}},
+  \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Rajguru}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Slosar}},
+  \bibinfo{journal}{Phys. Rev.} \textbf{\bibinfo{volume}{D73}},
+  \bibinfo{pages}{067302} (\bibinfo{year}{2006}), \eprint{astro-ph/0412535}.
+
+\bibitem[{\citenamefont{Verde et~al.}(2013)\citenamefont{Verde, Protopapas, and
+  Jimenez}}]{Verde:2013wza}
+\bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Verde}},
+  \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Protopapas}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Jimenez}},
+  \bibinfo{journal}{Phys. Dark Univ.} \textbf{\bibinfo{volume}{2}},
+  \bibinfo{pages}{166} (\bibinfo{year}{2013}), \eprint{1306.6766}.
+
+\end{thebibliography}
