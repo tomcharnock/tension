@@ -25,7 +25,7 @@ def plot_save(filename, show = True):
 
 def dimension(data):
 	try:
-		value = data.shape[1]
+		value = data.shape[0]
 	except IndexError:
     		value = None
 	return value
@@ -70,7 +70,7 @@ def Bhattacharrya(ax, gridsize, ranges, mean = None, std = None, skew = None, P1
 		ax.plot(ranges, P2, color='red', linestyle = '--')
 	        ax.plot(ranges, P, color = 'black', linestyle = ':')
         	ax.fill_between(ranges, 0, P, color = 'black', alpha = 0.5)
-	        ax.text(0.05, 0.95, '$BC = ' + '{0:.3f}'.format(BC) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)	
+	        ax.text(0.05, 0.95, '$B = ' + '{0:.3f}'.format(BC) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)	
 	
 	def two_dimensions(ax, ranges, P1, P2, P, BC, domainsize):
 		P1_levels = [sigma(P1, 0.997/domainsize), sigma(P1, 0.95/domainsize), sigma(P1, 0.68/domainsize)]
@@ -78,7 +78,7 @@ def Bhattacharrya(ax, gridsize, ranges, mean = None, std = None, skew = None, P1
 	        ax.contourf(ranges[0], ranges[1], P, alpha = 0.5, levels = np.linspace(0, max(np.max(P1), np.max(P2)), 100))
 		ax.contour(ranges[0], ranges[1], P1, colors = 'blue', levels = P1_levels)
 		ax.contour(ranges[0], ranges[1], P2, colors = 'red', linestyles = 'dashed', levels = P2_levels)
-	        ax.text(0.05, 0.95, '$BC = ' + '{0:.3f}'.format(BC) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)	
+	        ax.text(0.05, 0.95, '$B = ' + '{0:.3f}'.format(BC) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)	
 
 	if P12 is None:
 		P1, P2 = distributions(dim, ranges, mean, std, skew = skew)
@@ -102,7 +102,7 @@ def overlap(ax, gridsize, ranges, mean = None, std = None, skew = None, P12 = No
 		ax.plot(ranges, P1, color='blue')
 		ax.plot(ranges, P2, color='red', linestyle = '--')
 		ax.fill_between(ranges, 0, M, color = 'black', alpha = 0.5)
-		ax.text(0.05, 0.95, '$OVL = ' + '{0:.3f}'.format(M_val) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)
+		ax.text(0.05, 0.95, '$O = ' + '{0:.3f}'.format(M_val) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)
 
 	def two_dimensions(ax, ranges, P1, P2, M, M_val, domainsize):
 		P1_levels = [sigma(P1, 0.997/domainsize), sigma(P1, 0.95/domainsize), sigma(P1, 0.68/domainsize)]
@@ -110,7 +110,7 @@ def overlap(ax, gridsize, ranges, mean = None, std = None, skew = None, P12 = No
 	        ax.contourf(ranges[0], ranges[1], M, alpha = 0.5, levels = np.linspace(0, max(np.max(P1), np.max(P2)), 100))
 		ax.contour(ranges[0], ranges[1], P1, colors = 'blue', levels = P1_levels)
 		ax.contour(ranges[0], ranges[1], P2, colors = 'red', linestyles = 'dashed', levels = P2_levels)
-	        ax.text(0.05, 0.95, '$OVL = ' + '{0:.3f}'.format(M_val) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)	
+	        ax.text(0.05, 0.95, '$O = ' + '{0:.3f}'.format(M_val) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)	
 
 	if P12 is None:
 		P1, P2 = distributions(dim, ranges, mean, std, skew = skew)
@@ -141,7 +141,7 @@ def under(ax, ranges, mean = None, std = None, skew = None, P12 = None, level = 
 		ax2.fill_between(ranges, 0, P2, where = P1 >= sigma(P1, level/domainsize), color = 'black', alpha = 0.5)
 		ax2.text(0.05, 0.95, '$I_2 = ' + '{0:.3f}'.format(np.sum(under_P2 * domainsize)) + '$', horizontalalignment='left', verticalalignment='top', transform=ax2.transAxes,color='black')
 
-	def two_dimensions(ax, gridsize, ranges, P1, P2, under_P1, under_P2, domainsize):
+	def two_dimensions(ax, ranges, P1, P2, under_P1, under_P2, domainsize):
 		ax1 = ax[0]
 		ax2 = ax[1]
 		P1_levels = [sigma(P1, 0.997/domainsize), sigma(P1, 0.95/domainsize), sigma(P1, 0.68/domainsize)]
@@ -218,7 +218,7 @@ def Charnock(ax, mean, std, skew = None, num = 1e8, bins = 10, dim = 1, interp_b
 		ax.text(0.05, 0.95, '$C = ' + '{0:.3f}'.format(C) + '$', horizontalalignment='left', verticalalignment='top', transform=ax.transAxes)
 		ax.set_xticks([0])	
 	
-	def two_dimension(ax, ranges, interp_bins, interp_ranges, P_hist, interp_domainsize):
+	def two_dimension(ax, ranges, interp_bins, interp_ranges, P_hist, interp_domainsize, mean):
 		P_plot = np.zeros([interp_bins, interp_bins])
 		for i in xrange(interp_bins):
 			for j in xrange(interp_bins):
@@ -229,7 +229,10 @@ def Charnock(ax, mean, std, skew = None, num = 1e8, bins = 10, dim = 1, interp_b
 		P_C[P_C <= P_0] = 0
 		C = np.sum(P_C * interp_domainsize)
 		P_levels = [sigma(P_plot, 0.997/interp_domainsize), sigma(P_plot, 0.95/interp_domainsize), sigma(P_plot, 0.68/interp_domainsize)]
-		ax.contourf(interp_ranges[0], interp_ranges[1], P_C, alpha = 0.5, levels = np.linspace(np.min(P_plot[P_plot > 0]), np.max(P_plot), 100))
+		if P_0 != 0:
+			ax.contourf(interp_ranges[0], interp_ranges[1], P_C, alpha = 0.5, levels = np.linspace(np.min(P_plot[P_plot > 0]), np.max(P_plot), 100))
+		else:
+			ax.contourf(interp_ranges[0], interp_ranges[1], P_C, alpha = 0.5, levels = np.linspace(0, np.max(P_plot), 100))
 		ax.contour(interp_ranges[0], interp_ranges[1], P_plot, colors = 'purple', levels = P_levels)
 		ax.plot([np.min(interp_ranges[0]), np.max(interp_ranges[0])], [0, 0], linestyle = ':', color = 'black')
 		ax.plot([0, 0], [np.min(interp_ranges[1]), np.max(interp_ranges[1])], linestyle = ':', color = 'black')
@@ -251,14 +254,17 @@ def Charnock(ax, mean, std, skew = None, num = 1e8, bins = 10, dim = 1, interp_b
 	if dim is 1:
 		one_dimension(ax, ranges[0], interp_ranges[0], P_hist, interp_domainsize)
 	else:
-		two_dimension(ax, ranges, interp_bins, interp_ranges, P_hist, interp_domainsize)
+		two_dimension(ax, ranges, interp_bins, interp_ranges, P_hist, interp_domainsize, mean)
 
 def surprise(ax, gridsize, ranges, mean = None, std = None, skew = None, P12 = None, dim = 1):
 	def one_dimension(ax, ranges, P1, P2, D1_int, D2_int, D1_av, D2_av, S1, S2):
-		ax1 = ax[0]
-		ax2 = ax[1]
-		ax1.plot(ranges, P1, color = 'blue')
-		ax1.plot(ranges, P2, color = 'red', linestyle = '--')
+		if len(ax) == 2:
+			ax1 = ax[0]
+			ax2 = ax[1]
+			ax1.plot(ranges, P1, color = 'blue')
+			ax1.plot(ranges, P2, color = 'red', linestyle = '--')
+		else:
+			ax2 = ax[0]
 		ax2.plot([0, 0], [0, 3], color = 'black')
 		ax2.barh(2, D1_int, 0.8, color = 'blue')
 		ax2.barh(2.1, S1, 0.6,color = 'dodgerblue')
@@ -280,19 +286,23 @@ def surprise(ax, gridsize, ranges, mean = None, std = None, skew = None, P12 = N
 			lim.append(xmax)
 			xmax = xmax + 0.1 * xmax
 		if (xmin is 0) and (xmax is 0):
+			xmin = -1
 			xmax = 1
-		else:
-			ax2.set_xticks(lim)
+			lim.append(0)
+		ax2.set_xticks(lim)
 		ax2.set_xlim([xmin, xmax])
 		ax2.set_ylim([0.8, 3])
 	
 	def two_dimensions(ax, ranges, P1, P2, D1_int, D2_int, D1_av, D2_av, S1, S2, domainsize):
-		ax1 = ax[0]
-		ax2 = ax[1]
-		P1_levels = [sigma(P1, 0.997/domainsize), sigma(P1, 0.95/domainsize), sigma(P1, 0.68/domainsize)]
-		P2_levels = [sigma(P2, 0.997/domainsize), sigma(P2, 0.95/domainsize), sigma(P2, 0.68/domainsize)]
-		ax1.contour(ranges[0], ranges[1], P1, colors = 'blue', levels = P1_levels)
-		ax1.contour(ranges[0], ranges[1], P2, colors = 'red', linestyles = 'dashed', levels = P2_levels)
+		if len(ax) == 2:
+			ax1 = ax[0]
+			ax2 = ax[1]
+			P1_levels = [sigma(P1, 0.997/domainsize), sigma(P1, 0.95/domainsize), sigma(P1, 0.68/domainsize)]
+			P2_levels = [sigma(P2, 0.997/domainsize), sigma(P2, 0.95/domainsize), sigma(P2, 0.68/domainsize)]
+			ax1.contour(ranges[0], ranges[1], P1, colors = 'blue', levels = P1_levels)
+			ax1.contour(ranges[0], ranges[1], P2, colors = 'red', linestyles = 'dashed', levels = P2_levels)
+		else:
+			ax2 = ax[0]
 		ax2.plot([0, 0], [0, 3], color = 'black')
 		ax2.barh(2, D1_int, 0.8, color = 'blue')
 		ax2.barh(2.1, S1, 0.6,color = 'dodgerblue')
@@ -314,9 +324,10 @@ def surprise(ax, gridsize, ranges, mean = None, std = None, skew = None, P12 = N
 			lim.append(xmax)
 			xmax = xmax + 0.1 * xmax
 		if (xmin is 0) and (xmax is 0):
+			xmin = -1
 			xmax = 1
-		else:
-			ax2.set_xticks(lim)
+			lim.append(0)
+		ax2.set_xticks(lim)
 		ax2.set_xlim([xmin, xmax])
 		ax2.set_ylim([0.8, 3])
 
@@ -414,101 +425,156 @@ def verde(ax, gridsize, ranges, P3, mean = None, std = None, skew = None, P12 = 
 
 gridsize = 0.02
 x, y = np.mgrid[-10:10:gridsize, -10:10:gridsize]
-#gridsize = 1
-#x, y = np.mgrid[-100:100:gridsize, -100:100:gridsize]
 
-# Normal plot
-ax = plot_setup(2, 3)
-#mean = np.array([[[0], [0]], [[0], [0]], [[5], [-5]]])
-#std = np.array([[[[1]], [[1]]], [[[1]], [[3**2]]], [[[1]], [[1]]]])
-mean = np.array([[[0], [6]], [[0], [8]], [[0], [10]]])
-std = np.array([[[[1]], [[1]]], [[[1]], [[1]]], [[[1]], [[1]]]])
-for i in xrange(3):
-	P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i])
-#	P3 = distribution_3(1, [x[:, 0]], mean[i], std[i])
-	Bhattacharrya(ax[i], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-	overlap(ax[i+3], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1) 
-#	Charnock(ax[i+6], mean[i], std[i], num = 1000000, dim = 1 , bins = 100)
-#	under([ax[i+9], ax[i+12]], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#	surprise([ax[i], ax[i+3]], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#	marshall(ax[i], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#	verde(ax[i], gridsize, [x[:, 0]], P3, P12 = np.array([P1, P2]), dim = 1)
+#Paper Plots
+mean = np.array([[[0], [0]], [[0], [0]], [[5], [-5]], [[0], [1.427]], [[0], [1.427]], [[0, 0], [0, 0]], [[0, 0], [0, 0]], [[5, 5], [-5, -5]], [[0, 0], [1.427, 1.427]], [[0, 0], [1.427, 1.427]]])
+std = np.array([[[[1]], [[1]]], [[[1]], [[3**2]]], [[[1]], [[1]]], [[[1]], [[1]]], [[[1]], [[1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[3**2, 0], [0, 3**2]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]]])
+skew1D = [np.array([[-2], [4]]), np.array([[[1]], [[2**2]]])]
+skew2D = [np.array([[-2, -2], [4, 4]]), np.array([[[1, 0], [0, 1]], [[2**2, 0], [0, 2**2]]])]
 '''
-#mean = np.array([[[0, 0], [0, 0]], [[0, 0], [0, 0]], [[5, 5], [-5, -5]]])
-#std = np.array([[[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[3**2, 0], [0, 3**2]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]]])
-mean = np.array([[[0, 0], [6, 6]], [[0, 0], [8, 8]], [[0, 0], [10, 10]]])
-std = np.array([[[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]]])
-for i in xrange(3):
-	P1, P2 = distributions(2, [x, y], mean[i], std[i])
-#	P3 = distribution_3(2, [x, y], mean[i], std[i])
-	Bhattacharrya(ax[i+6], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-	overlap(ax[i+9], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2) 
-#	Charnock(ax[i+6], mean[i], std[i], num = 1000000, dim = 2, bins = 20)
-#	under([ax[i+9], ax[i+12]], gridsize,  [x, y], P12 = np.array([P1, P2]), dim = 2)
-#	surprise([ax[i], ax[i+3]], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-#	marshall(ax[i+3], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-#	verde(ax[i+3], gridsize, [x, y], P3, P12 = np.array([P1, P2]), dim = 2)
-#plot_save('R')
+#Bhattacharrya
+ax = plot_setup(2, 5)
+for i in xrange(10):
+	if i < 5:
+		if i != 4:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i])
+		else:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i], skew = skew1D)
+		Bhattacharrya(ax[i], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
+	else:
+		if i != 9:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i])
+		else:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i], skew = skew2D)
+		Bhattacharrya(ax[i], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
+plot_save('Bhattacharrya')
 '''
-plt.show()
-'''
-# Shifted
-#ax = plot_setup(1, 2)
-mean = np.array([[0], [1.427]])
-std = np.array([[[1]], [[1]]])
-P1, P2 = distributions(1, [x[:, 0]], mean, std)
-P3 = distribution_3(1, [x[:, 0]], mean, std)
-#Bhattacharrya(ax[0], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#overlap(ax[0], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1) 
-#Charnock(ax[0], mean, std, num = 1000000, dim = 1 , bins = 100)
-#under([ax[0], gridsize, ax[2]], [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#surprise([ax[0], gridsize, ax[3]], [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#marshall(ax[6], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-verde(ax[6], gridsize, [x[:, 0]], P3, P12 = np.array([P1, P2]), dim = 1)
 
-mean = np.array([[0, 0], [1.427, 1.427]])
-#mean = np.array([[0, 0], [1.8, 1.8]])
-std = np.array([[[1, 0], [0, 1]], [[1, 0], [0, 1]]])
-P1, P2 = distributions(2, [x, y], mean, std)
-P3 = distribution_3(2, [x, y], mean, std)
-#Bhattacharrya(ax[0], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-#overlap(ax[1], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2) 
-#Charnock(ax[2], mean, std, num = 1000000, dim = 2, bins = 20)
-#under([ax[0], gridsize, ax[1]], [x, y], P12 = np.array([P1, P2]), dim = 2)
-#surprise([ax[1], gridsize, ax[4]], [x, y], P12 = np.array([P1, P2]), dim = 2)
-#marshall(ax[9], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-verde(ax[9], gridsize, [x, y], P3, P12 = np.array([P1, P2]), dim = 2)
-#plot_save('R_2')
 '''
+#Overlap
+ax = plot_setup(2, 5)
+for i in xrange(10):
+	if i < 5:
+		if i != 4:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i])
+		else:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i], skew = skew1D)
+		overlap(ax[i], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1) 
+	else:
+		if i != 9:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i])
+		else:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i], skew = skew2D)
+		overlap(ax[i], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2) 
+plot_save('Overlap')
 '''
-# Skewed
-#ax = plot_setup(1, 2)
-mean = np.array([[0], [1.427]])
-std = np.array([[[1]], [[1]]])
-skew_mean = np.array([[-2], [4]])
-skew_std = np.array([[[1]], [[2**2]]])
-skew = [skew_mean, skew_std]
-P1, P2 = distributions(1, [x[:, 0]], mean, std, skew = skew)
-P3 = distribution_3(1, [x[:, 0]], mean, std, skew = skew)
-#Bhattacharrya(ax[0], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#Charnock(ax[0], mean, std, skew = skew, dim = 1 , bins = 100, num = 100000)
-#surprise([ax[0], ax[2]], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-#marshall(ax[7], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
-verde(ax[7], gridsize, [x[:, 0]], P3, P12 = np.array([P1, P2]), dim = 1)
 
-mean = np.array([[0, 0], [1.427, 1.427]])
-std = np.array([[[1, 0], [0, 1]], [[1, 0], [0, 1]]])
-skew_mean = np.array([[-2, -2], [4, 4]])
-skew_std = np.array([[[1, 0], [0, 1]], [[2**2, 0], [0, 2**2]]])
-skew = [skew_mean, skew_std]
-P1, P2 = distributions(2, [x, y], mean, std, skew = skew)
-P3 = distribution_3(2, [x, y], mean, std, skew = skew)
-#Bhattacharrya(ax[0], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-#overlap(ax[1], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2) 
-#Charnock(ax[2], mean, std, skew = skew, dim = 2, bins = 20, num = 1000000)
-#under([ax[0], ax[1]], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-#surprise([ax[1], ax[3]], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-#marshall(ax[10], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
-verde(ax[10], gridsize, [x, y], P3, P12 = np.array([P1, P2]), dim = 2)
-plot_save('T_2')
+'''
+#Under
+ax = plot_setup(4, 5)
+for i in xrange(10):
+	if i < 5:
+		if i != 4:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i])
+		else:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i], skew = skew1D)
+		under([ax[i], ax[i+5]], [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
+	else:
+		if i != 9:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i])
+		else:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i], skew = skew2D)
+		under([ax[5+i], ax[10+i]], [x, y], P12 = np.array([P1, P2]), dim = 2)
+plot_save('Under')
+'''
+
+
+#Surprise
+surprise_mean_1D = mean[:5] # np.array([[[0], [0]], [[0], [0]], [[5], [-5]], [[0], [1.427]], [[0], [1.75]], [[0], [1.427]]])
+surprise_std_1D = std[:5] #np.array([[[[1]], [[1]]], [[[1]], [[3**2]]], [[[1]], [[1]]], [[[1]], [[1]]], [[[1]], [[1]]], [[[1]], [[1]]]])
+#ax = plot_setup(2, 6)
+#for i in xrange(6):
+#	if i != 5:
+ax = plot_setup(1, 5)
+for i in xrange(5):
+	if i != 4:
+		P1, P2 = distributions(1, [x[:, 0]], surprise_mean_1D[i], surprise_std_1D[i])
+	else:
+		P1, P2 = distributions(1, [x[:, 0]], surprise_mean_1D[i], surprise_std_1D[i], skew = skew1D)
+	#surprise([ax[i], ax[i+6]], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
+	surprise([ax[i]], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
+
+plot_save('Surprise1D')
+
+surprise_mean_2D = np.array([[[0, 0], [0, 0]], [[0, 0], [0, 0]], [[5, 5], [-5, -5]], [[0, 0], [1.8, 1.8]], [[0, 0], [1.427, 1.427]]])
+surprise_std_2D = np.array([[[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[3**2, 0], [0, 3**2]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]], [[[1, 0], [0, 1]], [[1, 0], [0, 1]]]])
+#ax = plot_setup(2, 6)
+#for i in xrange(6):
+#	if i != 5:
+ax = plot_setup(1, 5)
+for i in xrange(5):
+	if i != 4:
+		P1, P2 = distributions(2, [x, y], surprise_mean_2D[i], surprise_std_2D[i])
+	else:
+		P1, P2 = distributions(2, [x, y], surprise_mean_2D[i], surprise_std_2D[i], skew = skew2D)
+	#surprise([ax[i], ax[i+6]], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
+	surprise([ax[i]], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
+
+plot_save('Surprise2D')
+
+'''
+#Marshall
+ax = plot_setup(2, 5)
+for i in xrange(10):
+	if i < 5:
+		if i != 4:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i])
+		else:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i], skew = skew1D)
+		marshall(ax[i], gridsize, [x[:, 0]], P12 = np.array([P1, P2]), dim = 1)
+	else:
+		if i != 9:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i])
+		else:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i], skew = skew2D)
+		marshall(ax[i], gridsize, [x, y], P12 = np.array([P1, P2]), dim = 2)
+plot_save('Marshall')
+'''
+
+'''
+#Verde
+ax = plot_setup(2, 5)
+for i in xrange(10):
+	if i < 5:
+		if i != 4:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i])
+		else:
+			P1, P2 = distributions(1, [x[:, 0]], mean[i], std[i], skew = skew1D)
+		P3 = distribution_3(1, [x[:, 0]], mean[i], std[i])
+		verde(ax[i], gridsize, [x[:, 0]], P3, P12 = np.array([P1, P2]), dim = 1)
+	else:
+		if i != 9:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i])
+		else:
+			P1, P2 = distributions(2, [x, y], mean[i], std[i], skew = skew2D)
+		P3 = distribution_3(2, [x, y], mean[i], std[i])
+		verde(ax[i], gridsize, [x, y], P3, P12 = np.array([P1, P2]), dim = 2)
+plot_save('Verde')
+'''
+
+'''
+#Charnock
+ax = plot_setup(2, 5)
+for i in xrange(10):
+	if i < 5:
+		if i != 4:
+			Charnock(ax[i], mean[i], std[i], num = 10000000, dim = 1 , bins = 100)
+		else:
+			Charnock(ax[i], mean[i], std[i], skew = skew1D, num = 10000000, dim = 1 , bins = 100)
+	else:
+		if i != 9:
+			Charnock(ax[i], mean[i], std[i], num = 10000000, dim = 2, bins = 20)
+		else:
+			Charnock(ax[i], mean[i], std[i], skew = skew2D, num = 10000000, dim = 2, bins = 20)
+plot_save('Charnock')
 '''
