@@ -9,4 +9,4 @@ data/*/*.likestats
 *.mod
 *.swp
 *.swo
-
+.DS_Store

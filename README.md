@@ -49,11 +49,11 @@ Calculates the difference between CMB and LSS and then calculates the integral o
 ###Python
 *uses chains directly.*
 
-This also plots the 2D contours for each of the parameters. Needs chains in `data/.../chains/`.
+This also plots the 2D contours for each of the parameters.
 
-This example finds the difference vector of the `data/CMB/chains/CMB_*.txt` data to the `data/Strong/chains/Strong_L_*.txt` data using 10 bins in the histogram.
+This example finds the difference vector of the CMB samples to the Strong_L samples in `chains/` using 30 bins in the histogram. This is for each of the parameters omegabh2 omegach2 theta logA ns. A plot is made in `difference_vector/plots/` which is named with the number of bins, the LSS data set and the tension.
 ```
-python difference_vector/difference_vector.py 10 CMB CMB Strong Strong_L
+python difference_vector/difference_vector.py -bins 30 -params omegabh2 omegach2 theta logA ns -root chains/ -CMB CMB -LSS Strong_L 
 ```
 
 
