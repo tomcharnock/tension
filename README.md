@@ -1,62 +1,66 @@
 # Calculate the tension between cosmological parameters obtained from two datasets.
 
-## Int P1(theta)P2(theta) dtheta
-To calculate the integral of the probability distribution P1 multiplied by P2 you can use the code in the tension folder. This includes a python version and a Fortran90 code.
-
-###Python 
-*uses chains.*
+Parameters and default parameter values in the params.py file are
 ```
-python tension/python/likelihoods.py
+parameters['method'] = ['combine'] 
+parameters['chain_dir'] = 'chains/'
+parameters['CMB'] = 'CMB'
+parameters['CMB_chains'] = 6
+parameters['LSS'] = 'Strong_L'
+parameters['LSS_chains'] = 6
+parameters['params'] = ['omegabh2', 'omegach2', 'theta', 'logA', 'ns']
+parameters['bins'] = 40
+parameters['plot_dir'] = None
+parameters['save_dir'] = None
+parameters['load'] = None
+parameters['priors'] = None
+parameters['smoothing'] = 0
+parameters['interpolate_bins'] = None
+parameters['integration_bounds'] = None
+parameters['plot_interpolate'] = None
 ```
-
-###Fortran
-*uses multivariate gaussian.*
-
-This example compares `data/CMB/CMB` results with `data/Strong/Strong_L` results and outputs into `output/Strong_L.txt`.
+Possible methods are
 ```
-cd tension/fortran/
-ifort -openmp tension.f90 -o tension
-cd ../../
-./tension/fortran/tension CMB/CMB Strong/Strong_L Strong_L
+parameters['method'] = ['combine', 'surprise', 'bhattacharyya', 'overlap_coefficient', 'ibi', 'marshall', 'verde', 'difference_vector']
 ```
-
-
-##Amara surprise
-Calculates the surprise and amount of information gained when comparing constraints from independent sources.
-
-###Python
-*uses multivariate gaussian.*
-
-This also plots the 2D contours for each of the parameters.
+Note that `'difference_vector'` cannot be run in the list with others.
+Plot are not made unless specifed. A `plots/` directory is present and can be used by setting
 ```
-python surprise/python/surprise.py
+parameters['plot_dir'] = 'plots/'
 ```
-
-###Fortran
-*uses multivariate gaussian.*
-
-This example compares `data/CMB/CMB` results with `data/Strong/Strong_L` results and vice versa and outputs into `output/Strong_L.txt`.
+The arrays are also not saved unless specifed. To save all arrays a `saves/` directory is present and can be used by setting
 ```
-cd surprise/fortran/
-ifort -openmp surprise.f90 -o surprise
-cd ../..
-./surprise/fortran/surprise CMB/CMB Strong/Strong_L Strong_L
+parameters['save_dir'] = 'saves/`
 ```
-
-##Difference vector
-Calculates the difference between CMB and LSS and then calculates the integral of the contour above the pdf value at the origin.
-
-###Python
-*uses chains directly.*
-
-This also plots the 2D contours for each of the parameters.
-
-This example finds the difference vector of the CMB samples to the Strong_L samples in `chains/` using 30 bins in the histogram. This is for each of the parameters omegabh2 omegach2 theta logA ns. A plot is made in `difference_vector/plots/` which is named with the number of bins, the LSS data set and the tension.
+If loading the arrays when using `'difference_vector'` then
 ```
-python difference_vector/difference_vector.py -bins 30 -params omegabh2 omegach2 theta logA ns -root chains/ -CMB CMB -LSS Strong_L 
+parameters['load'] = ['directory_where_difference_vector_is_saved/name_of_difference_vector']
 ```
-
-
-
-
-
+If loading the arrays when using anything other than `'difference_vector'` or `'verde'` then
+```
+parameters['load'] = ['directory_where_CMB_array_is_saved/name_of_CMB_array', 'directory_where_LSS_array_is_saved/name_of_LSS_array']
+```
+When loading the arrays using `'verde'` then
+```
+parameters['load'] = ['directory_where_CMB_array_is_saved/name_of_CMB_array', 'directory_where_LSS_array_is_saved/name_of_LSS_array', 'directory_where_shifted_array_is_saved/name_of_shifted_array']
+```
+If using `'marshall'` or `'verde'` the priors will be uniform unless the correct dimension array containing the prior is loaded by setting
+```
+parameters['priors'] = 'directory_where_priors_are_saved/name_of_priors'
+```
+For Gaussian smoothing or arrays (advised) then a smoothing of 1 should be used
+```
+parameters['smoothing'] = 1
+```
+To set optimum bins for the interpolated grid then the `'interpolate_bins'` parameter should be unset. This gives better results, but can use up HUGE amounts of memory - might be better to just go with smoothing.
+```
+parameters['interpolate_bins'] = None
+```
+When using `'ibi'` then the integration bounds need to be set, for 3 sigma bounds use
+```
+parameters['integration_bounds'] = 0.997
+```
+To use interpolation when plotting (for whatever reason) the number of bins can be set (to 10 for this example) using
+```
+parameters['plot_interpolate'] = 10
+```
