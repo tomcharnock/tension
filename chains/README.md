@@ -1,5 +1,5 @@
 #Folder for the chains
-Should contain chains (from `COSMOMC`) named along the lines of `name_of_chain_i.txt` where `name_of_chain = CMB` for example and `_i = _1` or `= _2` for the number of chains.
+Should contain chains (from `COSMOMC`) named along the lines of `name_of_chain_i.txt` where `name_of_chain = CMB` for example and `i = 1` or `= 2` for the chain number.
 These are passed to the code as
 ```
 parameters['CMB'] = 'name_of_CMB_chain'

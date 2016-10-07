@@ -64,3 +64,40 @@ To use interpolation when plotting (for whatever reason) the number of bins can 
 ```
 parameters['plot_interpolate'] = 10
 ```
+##To run
+To run the code (with parameters saved in the premade parameter file, `params.py` then use
+```
+python measures.py
+```
+To define new parameter file, say `new_params.py` the file must contain a dictionary called `parameters`. An example could be
+```
+#new_params.py
+parameters = {}
+
+parameters['method'] = ['difference_vector'] 
+parameters['chain_dir'] = 'chains/'
+parameters['CMB'] = 'CMB'
+parameters['CMB_chains'] = 2
+parameters['LSS'] = 'Weak_L'
+parameters['LSS_chains'] = 2
+parameters['params'] = ['omegabh2', 'omegach2', 'theta', 'logA', 'ns']
+parameters['bins'] = 20
+parameters['plot_dir'] = 'plots/'
+parameters['save_dir'] = 'saves/'
+parameters['smoothing'] = 1
+```
+This is then run with
+```
+python measures.py new_params
+```
+##utils.py
+This file contains all the functions to get probability distributions and mess with arrays etc. It also contains the default parameters and the class which contains them. For some reason I decided it should be in alphabetical order...
+
+##measures.py
+This file contains all the calculation of the methods and whether to plot. It basically calls a load of stuff from `utils.py`.
+
+##plot.py
+This file contains the plotting functions and one function for working out the isocountours which is also used in `'ibi'`.
+
+##params.py
+The default input file.
