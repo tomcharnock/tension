@@ -268,6 +268,8 @@ def get_tension(hist, ranges, domainsize, num_params):
 	return C,tension
 
 def initialise(module):
+	import sys
+	sys.path.append('params/')
 	arguments = {'method': ['combine'], 'chain_dir': 'chains/', 'CMB': 'CMB', 'CMB_chains': 6, 'LSS': 'Strong_L', 'LSS_chains': 6, 'params': ['omegabh2', 'omegach2', 'theta', 'logA', 'ns'], 'bins': 40, 'plot_dir':None, 'save_dir': None, 'load': None,  'priors': None, 'smoothing': 0, 'interpolate_bins': None, 'integration_bounds': None, 'plot_interpolate': None}
 	params = __import__(module)
 	for keys in params.parameters:

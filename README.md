@@ -1,6 +1,6 @@
 # Calculate the tension between cosmological parameters obtained from two datasets.
 
-Parameters and default parameter values in the params.py file are
+Parameters and default parameter values in the `params.py` file in `params/` are
 ```
 parameters['method'] = ['combine'] 
 parameters['chain_dir'] = 'chains/'
@@ -65,13 +65,13 @@ To use interpolation when plotting (for whatever reason) the number of bins can 
 parameters['plot_interpolate'] = 10
 ```
 ##To run
-To run the code (with parameters saved in the premade parameter file, `params.py` then use
+To run the code (with parameters saved in the premade parameter file, `params/params.py` then use
 ```
 python measures.py
 ```
-To define new parameter file, say `new_params.py` the file must contain a dictionary called `parameters`. An example could be
+To define new parameter file, say `params/new_params.py` the file must contain a dictionary called `parameters`. An example could be
 ```
-#new_params.py
+#params/new_params.py
 parameters = {}
 
 parameters['method'] = ['difference_vector'] 
@@ -99,5 +99,11 @@ This file contains all the calculation of the methods and whether to plot. It ba
 ##plot.py
 This file contains the plotting functions and one function for working out the isocountours which is also used in `'ibi'`.
 
-##params.py
+##params/params.py
 The default input file.
+
+##plots/
+Directory for plots
+
+##saves/
+Directory for saving arrays
