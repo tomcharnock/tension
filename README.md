@@ -88,7 +88,7 @@ parameters['smoothing'] = 1
 ```
 This is then run with
 ```
-python measures.py new_params
+python measures.py -file new_params
 ```
 ##utils.py
 This file contains all the functions to get probability distributions and mess with arrays etc. It also contains the default parameters and the class which contains them. For some reason I decided it should be in alphabetical order...

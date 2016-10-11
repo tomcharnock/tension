@@ -14,8 +14,7 @@ def plot_setup(rows, columns):
 	gs.update(wspace = 0, hspace=0, bottom = 0.2)
 
 	if ((rows == 1) and (columns == 1)):
-		ax = plt.subplot(gs[0, 0])
-		ax.set_yticks([])
+		ax = [plt.subplot(gs[0, 0])]
 	else:
 		ax = []
 		for i in xrange(rows):
@@ -122,7 +121,7 @@ def plot(args, ranges, domainsize, hist, filename, plot_crosshairs = False):
 						if plot_crosshairs:
 							ax[a] = crosshairs(ax[a], x, y)
 					else:
-						ax[a].contourf(x, y, P_plot, colors = colours[k], linestyles = linestyles[k])
+						ax[a].contourf(x, y, P_plot)
 				else:
 					if len(hist) == 1: 
 						ax[a].contour(x, y, P_plot, colors = 'purple', levels = P_levels)
@@ -137,7 +136,7 @@ def plot(args, ranges, domainsize, hist, filename, plot_crosshairs = False):
 	plot_save(filename, show = False)
 
 def plot_surprise(D1_int, S1, D2_int, S2, filename):
-	ax = plot_setup(1, 1)
+	ax = plot_setup(1, 1)[0]
 	ax.plot([0, 0], [0, 3], color = 'black')
 	ax.barh(2, D1_int, 0.8, color = 'blue')
 	ax.barh(2.1, S1, 0.6,color = 'dodgerblue')
@@ -165,5 +164,6 @@ def plot_surprise(D1_int, S1, D2_int, S2, filename):
 	ax.set_xticks(lim)
 	ax.set_xlim([xmin, xmax])
 	ax.set_ylim([0.8, 3])
+	ax.set_yticks([])
 	ax.set_xlabel('${\\rm Bits}\\times\log2$', labelpad = 0)
 	plot_save(filename, show = False)

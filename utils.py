@@ -21,12 +21,10 @@ class parameters():
 		self.integration_bounds = arguments['integration_bounds']
 		self.plot_interpolate = arguments['plot_interpolate'] 
 		if not 'difference_vector' in self.method:
-			#if self.interpolate_bins == None:
-			#	print 'Need to set number of interpolate_bins'
-			#	sys.exit()
-			if self.interpolate_bins < 1:
-				print 'Number of interpolate bins too low'
-				sys.exit()
+			if self.interpolate_bins != None:
+				if self.interpolate_bins < 1:
+					print 'Number of interpolate bins too low'
+					sys.exit()
 			if (('marshall' in self.method) or ('verde' in self.method)):
 				if self.load != None:
 					if self.priors == None:
@@ -77,6 +75,7 @@ def combine(args):
 		domainsize = get_domainsize(ranges)
 		interp_ranges = list(product(*ranges))
 		CMB_hist_interp = interpn(CMB_ranges, CMB_hist, interp_ranges, bounds_error = False, fill_value = 0)
+		CMB_hist_interp[CMB_hist_interp < 0] = 0
 		CMB_hist_interp = np.reshape(CMB_hist_interp, tuple([bins[i] for i in xrange(args.num_params)]))
 		CMB_hist_interp = CMB_hist_interp/np.sum(CMB_hist_interp)/domainsize
 		if args.save_dir != None:
@@ -84,6 +83,7 @@ def combine(args):
 			save(CMB_filename, CMB_hist_interp, ranges, domainsize)
 			del CMB_hist, CMB_ranges, CMB_domainsize
 		LSS_hist_interp = interpn(LSS_ranges, LSS_hist, interp_ranges, bounds_error = False, fill_value = 0)
+		LSS_hist_interp[LSS_hist_interp < 0] = 0
 		LSS_hist_interp = np.reshape(LSS_hist_interp, tuple([bins[i] for i in xrange(args.num_params)]))
 		LSS_hist_interp = LSS_hist_interp/np.sum(LSS_hist_interp)/domainsize
 		if args.save_dir != None:
@@ -93,6 +93,7 @@ def combine(args):
 		if 'verde' in args.method:
 			shifted_hist, shifted_ranges = get_shifted(args, CMB_samples, LSS_samples)
 			shifted_hist_interp = interpn(shifted_ranges, shifted_hist, interp_ranges, bounds_error = False, fill_value = 0)
+			shifted_hist_interp[shifted_hist_interp < 0] = 0
 			shifted_hist_interp = np.reshape(shifted_hist_interp, tuple([bins[i] for i in xrange(args.num_params)]))
 			shifted_hist_interp = shifted_hist_interp/np.sum(shifted_hist_interp)/domainsize
 			if args.save_dir != None:
@@ -165,7 +166,6 @@ def get_columns(root, chain, params):
 def get_D(P1, P2, domainsize):
 	D = P2*np.log(P2/P1)
 	D[np.isnan(D)] = 0.
-	D[np.isinf(D)] = 0.
 	D_int = np.sum(D*domainsize)
 	return D, D_int
 
@@ -231,9 +231,8 @@ def get_ranges(num_params, num_bins, edges = None, CMB = None, LSS = None):
 	else:
 		return ranges, bins, domainsize
 
-def get_S(P, D, D_int):
-	DP = D*P
-	D_av = np.sum(DP)
+def get_S(P1, P2, D_int):
+	D_av = np.mean(np.log(P1)-np.log(P2))
 	S = D_int - np.abs(D_av)
 	return S
 
@@ -244,13 +243,20 @@ def get_samples(root, dataset, chains, params):
 
 def get_shifted(args, CMB_samples, LSS_samples):
 	CMB_means = np.mean(CMB_samples, axis = 0)
-	shifted_samples = LSS_samples - CMB_means
+	LSS_means = np.mean(LSS_samples, axis = 0)
+	shifted_samples = LSS_samples - LSS_means + CMB_means
 	shifted_hist, shifted_ranges, shifted_domainsize = get_histogram(args, shifted_samples)
 	return shifted_hist, shifted_ranges
 
 def get_surprise(P1, P2, domainsize):
+	idx1 = np.where(P1 != 0)
+	P1 = P1[idx1]
+	P2 = P2[idx1]
+	idx2 = np.where(P2 != 0)
+	P1 = P1[idx2]
+	P2 = P2[idx2]
 	D, D_int = get_D(P1, P2, domainsize)
-	S = get_S(P1*P2, D, D_int)
+	S = get_S(P1, P2, D_int)
 	return D_int, S
 
 def get_tension(hist, ranges, domainsize, num_params):
