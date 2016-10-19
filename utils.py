@@ -20,6 +20,9 @@ class parameters():
 		self.interpolate_bins = arguments['interpolate_bins']
 		self.integration_bounds = arguments['integration_bounds']
 		self.plot_interpolate = arguments['plot_interpolate'] 
+                self.sampling_method = arguments['sampling_method']
+		self.sampling_parameter = arguments['sampling_parameter']
+                self.sampling_constraints = arguments['sampling_constraints']
 		if not 'difference_vector' in self.method:
 			if self.interpolate_bins != None:
 				if self.interpolate_bins < 1:
@@ -67,9 +70,9 @@ def combine(args):
 	else:
 		from itertools import product
 		from scipy.interpolate import interpn
-		CMB_samples = get_samples(args.chain_dir, args.CMB, args.CMB_chains, args.params)
+		CMB_samples = get_samples(args, args.CMB, args.CMB_chains)
 		CMB_hist, CMB_ranges, CMB_domainsize = get_histogram(args, CMB_samples)
-		LSS_samples = get_samples(args.chain_dir, args.LSS, args.LSS_chains, args.params)
+		LSS_samples = get_samples(args, args.LSS, args.LSS_chains)
 		LSS_hist, LSS_ranges, LSS_domainsize = get_histogram(args, LSS_samples)
 		ranges, bins = interpolation_bins(CMB_ranges, LSS_ranges, args.num_params, num_bins = args.interpolate_bins)
 		domainsize = get_domainsize(ranges)
@@ -124,8 +127,8 @@ def difference_vector(args):
 		import multiprocessing
 		from multiprocessing import Pool
 		from functools import partial
-		CMB = get_samples(args.chain_dir, args.CMB, args.CMB_chains, args.params)
-		LSS = get_samples(args.chain_dir, args.LSS, args.LSS_chains, args.params)
+		CMB = get_samples(args, args.CMB, args.CMB_chains)
+		LSS = get_samples(args, args.LSS, args.LSS_chains)
 		ranges, bins, domainsize = get_ranges(args.num_params, args.bins, CMB = CMB, LSS = LSS)
 		hist = np.zeros([args.bins, args.bins, args.bins, args.bins, args.bins])
 		print "Using ", multiprocessing.cpu_count(), " processors"
@@ -151,15 +154,15 @@ def define_hist(CMB, LSS, num_params, num_bins):
 	a, edges = np.histogramdd([[0] for i in xrange(num_params)], bins = num_bins, range = bins)
 	return bins, edges
 
-def get_columns(root, chain, params):
-	columns = []
-	filename = root + chain + ".paramnames"
+def get_columns(args, chain, params):
+	columns = [0 for i in xrange(args.num_params)]
+	filename = args.chain_dir + chain + ".paramnames"
 	with open(filename) as f:
 		i = 0
 		for read_line in f:
 			line = filter(None, read_line.replace('\n','').split('\t'))
 			if line[0] in params:
-				columns.append(i+2)
+				columns[params.index(line[0])] = int(i+2)
 			i += 1
 	return columns
 
@@ -199,21 +202,42 @@ def get_ibi(P1, P2, domainsize, integration_bounds):
 	I = np.sum(under_P2*domainsize)
 	return I
 
-def get_labels(root, chain, params, method):
-	if method == 'difference_vector':
+def get_labels(args, chain):
+	if args.method == 'difference_vector':
 		label_dict = {'omegabh2': '$\Delta\Omega_{\\rm b}h^2$', 'omegach2': '$\Delta\Omega_{\\rm c}h^2$', 'theta': '$\Delta\Theta_{\\rm MC}$', 'logA': '$\Delta\log A_{\\rm s}$', 'ns': '$\Delta n_{\\rm s}$', 'mnu': '$\Delta\sum m_\\nu$', 'meffsterile': '$\Delta m_{\\rm eff}^{\\rm sterile}$', 'nnu': '$\Delta N_{\\rm eff}$'}
 	else:
 		label_dict = {'omegabh2': '$\Omega_{\\rm b}h^2$', 'omegach2': '$\Omega_{\\rm c}h^2$', 'theta': '$\Theta_{\\rm MC}$', 'logA': '$\log A_{\\rm s}$', 'ns': '$n_{\\rm s}$', 'mnu': '$\sum m_\\nu$', 'meffsterile': '$m_{\\rm eff}^{\\rm sterile}$', 'nnu': '$N_{\\rm eff}$'}
 	labels = []
-	filename = root + chain + ".paramnames"
+	filename = args.chain_dir + chain + ".paramnames"
 	with open(filename) as f:
 		i = 0
 		for read_line in f:
 			line = filter(None, read_line.replace('\n','').split('\t'))
-			if line[0] in params:
+			if line[0] in args.params:
 				labels.append(label_dict[line[0]])
 			i += 1
 	return labels
+
+def get_likelihood(args, dataset, dataset_num):
+	data = []
+	for num in xrange(int(dataset_num)):
+		filename = args.chain_dir + dataset + "_" + str(num+1) + ".txt"
+		num_lines = 0
+		with open(filename) as f:
+			for read_line in f:
+				num_lines += 1
+		skip_lines = int(num_lines/3.)
+		num_lines = 0
+		with open(filename) as f:
+			for read_line in f:
+				if num_lines > skip_lines:
+					line = filter(None, read_line.replace('\n','').split(' '))
+					repeat = int(float(line[0]))
+					for i in xrange(repeat):
+						data.append(float(line[1]))
+				num_lines += 1
+	likelihood = np.array(data)
+	return likelihood
 
 def get_priors(args, hist, domainsize):
 	priors = np.ones(hist.shape)
@@ -236,9 +260,10 @@ def get_S(P1, P2, D_int):
 	S = D_int - np.abs(D_av)
 	return S
 
-def get_samples(root, dataset, chains, params):
-	samples = read_chains(root, dataset, chains, params)
+def get_samples(args, dataset, dataset_num):
+	samples = read_chains(args, dataset, dataset_num)
 	print "Number of samples in " + dataset + " = ",len(samples)
+	print "Shape of data = ", samples.shape
 	return samples
 
 def get_shifted(args, CMB_samples, LSS_samples):
@@ -267,10 +292,34 @@ def get_tension(hist, ranges, domainsize, num_params):
 	tension = np.sqrt(2)*erfinv(C)
 	return C,tension
 
+def importance_sampling(args, samples, likelihood):
+	new_samples = np.copy(samples)
+	for i in xrange(len(args.sampling_method)):
+		column = np.where(np.array(args.params) == args.sampling_parameter[i])[0][0]
+		if args.sampling_method[i] == 'uniform':
+			prior = np.ones(len(new_samples[:, column]))
+			index = np.where(new_samples[:, column] < args.sampling_constraints[i][0])[0]
+			prior[index] = 0.
+			index = np.where(new_samples[:, column] > args.sampling_constraints[i][1])[0]
+			prior[index] = 0.
+			posterior = likelihood * prior
+		if args.sampling_method[i] == 'gaussian':
+			prior = np.exp(-0.5*((args.sampling_constraints[i][0]-new_samples[:, column])**2.)/(args.sampling_constraints[i][1]**2.))
+			posterior = likelihood*prior
+		diff = np.exp(np.log(posterior)-np.log(likelihood))
+		diff[np.isnan(diff)] = 0.
+		diff[diff > 1] = 1.
+		rand = np.random.rand(len(diff))
+		index = np.where(diff > rand)[0]
+		new_samples = new_samples[index, :]
+		likelihood = likelihood[index]
+
+	return new_samples
+	
 def initialise(module):
 	import sys
 	sys.path.append('params/')
-	arguments = {'method': ['combine'], 'chain_dir': 'chains/', 'CMB': 'CMB', 'CMB_chains': 6, 'LSS': 'Strong_L', 'LSS_chains': 6, 'params': ['omegabh2', 'omegach2', 'theta', 'logA', 'ns'], 'bins': 40, 'plot_dir':None, 'save_dir': None, 'load': None,  'priors': None, 'smoothing': 0, 'interpolate_bins': None, 'integration_bounds': None, 'plot_interpolate': None}
+	arguments = {'method': ['combine'], 'chain_dir': 'chains/', 'CMB': 'CMB', 'CMB_chains': 6, 'LSS': 'Strong_L', 'LSS_chains': 6, 'params': ['omegabh2', 'omegach2', 'theta', 'logA', 'ns'], 'bins': 40, 'plot_dir':None, 'save_dir': None, 'load': None,  'priors': None, 'smoothing': 0, 'interpolate_bins': None, 'integration_bounds': None, 'plot_interpolate': None, 'sampling_method': None, 'sampling_parameter': None, 'sampling_constraints': None}
 	params = __import__(module)
 	for keys in params.parameters:
 		arguments[keys] = params.parameters[keys]
@@ -296,11 +345,11 @@ def load(filename):
 	domainsize = np.load(filename + '_domainsize.npy')
 	return hist, ranges, domainsize
 
-def read_chains(root, chain, file_num, params):
-	columns = get_columns(root, chain, params)
+def read_chains(args, dataset, dataset_num):
+	columns = get_columns(args, dataset, args.params)
 	data = []
-	for num in xrange(int(file_num)):
-		filename = root + chain + "_" + str(num+1) + ".txt"
+	for num in xrange(int(dataset_num)):
+		filename = args.chain_dir + dataset + "_" + str(num+1) + ".txt"
 		num_lines = 0
 		with open(filename) as f:
 			for read_line in f:
@@ -315,7 +364,11 @@ def read_chains(root, chain, file_num, params):
 					for i in xrange(repeat):
 						data.append([float(line[j]) for j in columns])
 				num_lines += 1
-	return np.array(data)
+	samples = np.array(data)
+	if args.sampling_method != None:
+		likelihood = get_likelihood(args, dataset, dataset_num)
+		samples = importance_sampling(args, samples, likelihood)
+	return samples
 
 def save(filename, hist, ranges, domainsize):
 	np.save(filename + '_hist.npy', hist)

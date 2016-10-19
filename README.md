@@ -18,6 +18,9 @@ parameters['smoothing'] = 0
 parameters['interpolate_bins'] = None
 parameters['integration_bounds'] = None
 parameters['plot_interpolate'] = None
+parameters['sampling_method'] = None
+parameters['sampling_parameter'] = None
+parameters['sampling_constraints'] = None
 ```
 Possible methods are
 ```
@@ -64,6 +67,19 @@ To use interpolation when plotting (for whatever reason) the number of bins can 
 ```
 parameters['plot_interpolate'] = 10
 ```
+To impliment importance sampling on the chains before processing the sampling method, parameter and constraints need to be set. For Planck2013 Gaussian priors on theta and ns this could be
+```
+parameters['sampling_method'] = ['gaussian', 'gaussian']
+parameters['sampling_parameter'] = ['theta', 'ns']
+parameters['sampling_constraints'] = [[1.04086, 0.00029], [0.9666, 0.0040]]
+```
+For Gaussian priors the `'sampling_constraints'` parameter must be a list with the mean in the first position and the standard deviation in the second position. Flat priors can also be applied using
+```
+parameters['sampling_method'] = ['uniform']
+parameters['sampling_parameter'] = ['omegabh2']
+parameters['sampling_constraints'] = [[0.0224, 0.0225]]
+```
+where the first index of the list is the lower bound and the second position in the list is the upper bound. Both Gaussian and uniform priors can be applied to different parameters at the same time.
 ##To run
 To run the code (with parameters saved in the premade parameter file, `params/params.py` then use
 ```

@@ -95,7 +95,7 @@ def plot(args, ranges, domainsize, hist, filename, plot_crosshairs = False):
 
 	ax = plot_setup(args.num_params-1, args.num_params-1)
 
-	labels = get_labels(args.chain_dir, args.CMB, args.params, args.method)
+	labels = get_labels(args, args.CMB)
 	sci = sci_ranges(args.num_params, ranges)
 	a = 0
 	for i in xrange(args.num_params-1):
