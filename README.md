@@ -79,7 +79,13 @@ parameters['sampling_method'] = ['uniform']
 parameters['sampling_parameter'] = ['omegabh2']
 parameters['sampling_constraints'] = [[0.0224, 0.0225]]
 ```
-where the first index of the list is the lower bound and the second position in the list is the upper bound. Both Gaussian and uniform priors can be applied to different parameters at the same time.
+where the first index of the list is the lower bound and the second position in the list is the upper bound. Both Gaussian and uniform priors can be applied to different parameters at the same time. Priors can also be placed on parameters not included in the analysis, but which are contained in the chains. For example, placing the Planck2016+lowE optical depth constraints to the CMB chain only can be acheived by using
+```
+parameters['sampling_method'] = ['gaussian']
+parameters['sampling_parameter'] = ['tau']
+parameters['sampling_constraints'] = [[0.058, 0.012]]
+```
+`tau` is not in the LSS chains and so no importance sampling of `tau` occurs. 
 ##To run
 To run the code (with parameters saved in the premade parameter file, `params/params.py` then use
 ```

@@ -155,7 +155,7 @@ def define_hist(CMB, LSS, num_params, num_bins):
 	return bins, edges
 
 def get_columns(args, chain, params):
-	columns = [0 for i in xrange(args.num_params)]
+	columns = [0 for i in xrange(len(params))]
 	filename = args.chain_dir + chain + ".paramnames"
 	with open(filename) as f:
 		i = 0
@@ -218,7 +218,7 @@ def get_labels(args, chain):
 			i += 1
 	return labels
 
-def get_likelihood(args, dataset, dataset_num):
+def get_likelihood(args, dataset, dataset_num, column = 1):
 	data = []
 	for num in xrange(int(dataset_num)):
 		filename = args.chain_dir + dataset + "_" + str(num+1) + ".txt"
@@ -234,7 +234,7 @@ def get_likelihood(args, dataset, dataset_num):
 					line = filter(None, read_line.replace('\n','').split(' '))
 					repeat = int(float(line[0]))
 					for i in xrange(repeat):
-						data.append(float(line[1]))
+						data.append(float(line[column]))
 				num_lines += 1
 	likelihood = np.array(data)
 	return likelihood
@@ -292,28 +292,38 @@ def get_tension(hist, ranges, domainsize, num_params):
 	tension = np.sqrt(2)*erfinv(C)
 	return C,tension
 
-def importance_sampling(args, samples, likelihood):
+def importance_sampling(args, samples, dataset, dataset_num):
+	likelihood = get_likelihood(args, dataset, dataset_num)
 	new_samples = np.copy(samples)
+	index = np.where(new_samples[:, 0] != np.nan)[0]
 	for i in xrange(len(args.sampling_method)):
-		column = np.where(np.array(args.params) == args.sampling_parameter[i])[0][0]
-		if args.sampling_method[i] == 'uniform':
-			prior = np.ones(len(new_samples[:, column]))
-			index = np.where(new_samples[:, column] < args.sampling_constraints[i][0])[0]
-			prior[index] = 0.
-			index = np.where(new_samples[:, column] > args.sampling_constraints[i][1])[0]
-			prior[index] = 0.
-			posterior = likelihood * prior
-		if args.sampling_method[i] == 'gaussian':
-			prior = np.exp(-0.5*((args.sampling_constraints[i][0]-new_samples[:, column])**2.)/(args.sampling_constraints[i][1]**2.))
-			posterior = likelihood*prior
-		diff = np.exp(np.log(posterior)-np.log(likelihood))
-		diff[np.isnan(diff)] = 0.
-		diff[diff > 1] = 1.
-		rand = np.random.rand(len(diff))
-		index = np.where(diff > rand)[0]
-		new_samples = new_samples[index, :]
-		likelihood = likelihood[index]
-
+		sample = True
+		if args.sampling_parameter[i] not in args.params:
+			column = get_columns(args, dataset, [args.sampling_parameter[i]])[0]
+			if column < 2:
+				sample = False
+			parameter_samples = get_likelihood(args, dataset, dataset_num, column = column)[index]
+		else:
+			column = np.where(np.array(args.params) == args.sampling_parameter[i])[0][0]
+			parameter_samples = new_samples[index, column]
+		if sample:
+			if args.sampling_method[i] == 'uniform':
+				prior = np.ones(len(parameter_samples))
+				index = np.where(parameter_samples < args.sampling_constraints[i][0])[0]
+				prior[index] = 0.
+				index = np.where(parameter_samples > args.sampling_constraints[i][1])[0]
+				prior[index] = 0.
+				posterior = likelihood * prior
+			if args.sampling_method[i] == 'gaussian':
+				prior = np.exp(-0.5*((args.sampling_constraints[i][0]-parameter_samples)**2.)/(args.sampling_constraints[i][1]**2.))
+				posterior = likelihood*prior
+			diff = np.exp(np.log(posterior)-np.log(likelihood))
+			diff[np.isnan(diff)] = 0.
+			diff[diff > 1] = 1.
+			rand = np.random.rand(len(diff))
+			index = np.where(diff > rand)[0]
+			new_samples = new_samples[index, :]
+			likelihood = likelihood[index]
 	return new_samples
 	
 def initialise(module):
@@ -366,8 +376,7 @@ def read_chains(args, dataset, dataset_num):
 				num_lines += 1
 	samples = np.array(data)
 	if args.sampling_method != None:
-		likelihood = get_likelihood(args, dataset, dataset_num)
-		samples = importance_sampling(args, samples, likelihood)
+		samples = importance_sampling(args, samples, dataset, dataset_num)
 	return samples
 
 def save(filename, hist, ranges, domainsize):
