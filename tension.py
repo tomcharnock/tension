@@ -758,7 +758,7 @@ if __name__ == "__main__":
 	params = __import__(parser.parse_args().file)			# 			- Loads the parameter file as a module
 	tension(params.parameters)					# 			- Initialises the class and run the tension script
 
-	print datetime.now() -startTime, 'seconds.'			#			- Prints the amount of time the script took
+	print "Time elapsed ", datetime.now() -startTime			#			- Prints the amount of time the script took
 	total_mem = process.memory_info().rss >> 20			# Float			- Gets the amount of memory the script used 
-	print total_mem, 'MB'						#			- Prints the total memory in MB
+	print "Memory used ", total_mem, 'MB'						#			- Prints the total memory in MB
 	
