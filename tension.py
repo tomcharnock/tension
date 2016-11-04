@@ -311,10 +311,13 @@ class tension():
 	def get_samples(self, dataset, dataset_num):
 		# Gets the samples from the chains and performs importance sampling if necessary
 		# Used in combine() and difference_vector()
-		columns = self.get_columns(dataset, self.params)			  # List [num_params]				- Gets the columns of the parameters 
-		samples = self.read_chains(dataset, dataset_num, columns)		  # Array [number of samples, num_params]	- Gets the samples from chains
+		columns = self.get_columns(dataset, self.params)			  # List [num_params]				  - Gets the columns of the parameters 
+		samples = self.read_chains(dataset, dataset_num, columns)		  # Array [number of samples, num_params]	  - Gets the samples from chains
 		if self.sampling_method != None:
-			samples = self.importance_sampling(samples, dataset, dataset_num) # Array [number of samples, num_params]	- Importance samples the chains
+			if ((self.sample_CMB) and (dataset == self.CMB)):
+				samples = self.importance_sampling(samples, dataset, dataset_num) # Array [number of samples, num_params] - Importance samples the chains
+			if ((self.sample_LSS) and (dataset == self.LSS)):
+				samples = self.importance_sampling(samples, dataset, dataset_num) # Array [number of samples, num_params] - Importance samples the chains
 		print "Number of samples in " + dataset + " = ",len(samples)
 		print "Shape of data = ", samples.shape
 		return samples
@@ -472,6 +475,8 @@ class tension():
 			     'sampling_constraints': None,				 # List [2 for i in sample params]
 											 #			- List containing list of lower and upper bounds for 'uniform' or
 											 #			- mean and standard deviation for 'gaussian'
+			     'sample_CMB': False,					 # Boolean		- Whether to importance sample the CMB chains
+			     'sample_LSS': False,					 # Boolean		- Whether to importance sample the LSS chains
 			     'filename': None}						 # String		- Filename at the beginning of each saved files and plots
 		for keys in parameters:
 			arguments[keys] = parameters[keys]				 #			- Loads parameters from dictionary
@@ -501,6 +506,8 @@ class tension():
                 self.sampling_constraints = arguments['sampling_constraints']            # List [2 for i in sample params]
                                                                                          #			- List containing list of lower and upper bounds for 'uniform' or
                                                                                          #			- mean and standard deviation for 'gaussian'
+                self.sample_CMB = arguments['sample_CMB']            		         # Boolean		- Whether to importance sample the CMB chains
+		self.sample_LSS = arguments['sample_LSS']				 # Boolean		- Whether to importance sample the LSS chains
 		self.filename = arguments['filename']                                    # String		- Filename at the beginning of each saved files and plots
 		if self.method != None:
 			if not 'difference_vector' in self.method:

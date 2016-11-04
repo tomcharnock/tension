@@ -21,6 +21,8 @@ parameters['integration_bounds'] = None
 parameters['sampling_method'] = None
 parameters['sampling_parameter'] = None
 parameters['sampling_constraints'] = None
+parameters['sample_CMB'] = False
+parameters['sample_LSS'] = False
 ```
 Possible methods are
 ```
@@ -64,20 +66,25 @@ When using `'ibi'` then the integration bounds need to be set, for 3 sigma bound
 ```
 parameters['integration_bounds'] = 0.997
 ```
-To impliment importance sampling on the chains before processing the sampling method, parameter and constraints need to be set. For Planck2013 Gaussian priors on theta and ns this could be
+To impliment importance sampling on the chains before processing the sampling method, parameter and constraints need to be set. To set Planck2013 Gaussian priors to the CMB chain for theta and ns this could be
 ```
+parameters['sample_CMB'] = True
 parameters['sampling_method'] = ['gaussian', 'gaussian']
 parameters['sampling_parameter'] = ['theta', 'ns']
 parameters['sampling_constraints'] = [[1.04086, 0.00029], [0.9666, 0.0040]]
 ```
-For Gaussian priors the `'sampling_constraints'` parameter must be a list with the mean in the first position and the standard deviation in the second position. Flat priors can also be applied using
+For Gaussian priors the `'sampling_constraints'` parameter must be a list with the mean in the first position and the standard deviation in the second position. Flat priors can also be applied, to both chains, using
 ```
+parameters['sample_CMB'] = True
+parameters['sample_LSS'] = True
 parameters['sampling_method'] = ['uniform']
 parameters['sampling_parameter'] = ['omegabh2']
 parameters['sampling_constraints'] = [[0.0224, 0.0225]]
 ```
 where the first index of the list is the lower bound and the second position in the list is the upper bound. Both Gaussian and uniform priors can be applied to different parameters at the same time. Priors can also be placed on parameters not included in the analysis, but which are contained in the chains. For example, placing the Planck2016+lowE optical depth constraints to the CMB chain only can be acheived by using
 ```
+parameters['sample_CMB'] = True
+#parameters['sample_LSS'] = True or False since 'tau' is not in the LSS chains and so chain won't be importance sampled 
 parameters['sampling_method'] = ['gaussian']
 parameters['sampling_parameter'] = ['tau']
 parameters['sampling_constraints'] = [[0.058, 0.012]]
